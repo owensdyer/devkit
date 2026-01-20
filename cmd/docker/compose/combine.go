@@ -1,33 +1,28 @@
+// Package compose handles the 'dk docker compose combine' command.
 package compose
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 
-	"github.com/owensdyer/devkit/cmd/docker"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
-var ComposeCmd = &cobra.Command{
-	Use: "compose",
-	Short: "Docker Compose related commands",
-}
-
 var CombineCmd = &cobra.Command{
-	Use: "combine",
+	Use:   "combine [file1] [file2] [output]",
 	Short: "Combine docker-compose YAML files",
 	Long: `Combine a base docker-compose.yaml and an override file into a single file.
 	
-	This can be used to combine a base file with a production (docker-compose.prod.yaml) or local (docker-compose.local.yaml) file depending on the environment that
-	the container is being hosted in.`
+This can be used to combine a base file with a production (docker-compose.prod.yaml) or local
+(docker-compose.local.yaml) file depending on the environment that
+the container is being hosted in.
 	
+By default, the base file is docker-compose.yaml and the production file is docker-compose.prod.yaml.
+If you want to use docker-compose.local.yaml, use the -l or --local flag.`,
+	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 3 {
-			fmt.Println("Useage: dk docker compose combine <base.yaml> <override.yaml> <output.yaml>")
-			return
-		}
 		baseFile := args[0]
 		overrideFile := args[1]
 		outputFile := args[2]
@@ -38,20 +33,28 @@ var CombineCmd = &cobra.Command{
 		}
 
 		fmt.Printf("Merged file written to %s\n", outputFile)
-	}
-
+	},
 }
 
 func init() {
-	docker.DockerCmd.AddCommand(ComposeCmd)
 	ComposeCmd.AddCommand(CombineCmd)
 }
 
 // MergeYamlFiles reads two YAML files, merges them, and writes the output
 func mergeYAMLFiles(basePath, overridePath, outputPath string) error {
 
-	baseBytes, err := ioutil.ReadFile(basePath)
+	baseBytes, err := os.ReadFile(basePath)
 	if err != nil {
+		return err
+	}
+
+	overrideBytes, err := os.ReadFile(overridePath)
+	if err != nil {
+		return err
+	}
+
+	var base map[string]interface{}
+	if err := yaml.Unmarshal(baseBytes, &base); err != nil {
 		return err
 	}
 
@@ -69,7 +72,7 @@ func mergeYAMLFiles(basePath, overridePath, outputPath string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(outputPath, outBytes, 0644)
+	return os.WriteFile(outputPath, outBytes, 0644)
 }
 
 // mergeMaps recursively merges override into base

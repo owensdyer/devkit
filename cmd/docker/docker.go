@@ -1,28 +1,21 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-
-*/
-package cmd
+// Package docker handles commands in relation to docker.
+package docker
 
 import (
-	"fmt"
-	"github.com/owensdyer/devkit/cmd"
+	"devkit/cmd/docker/compose"
+
 	"github.com/spf13/cobra"
 )
 
-// dockerCmd represents the docker command
-var dockerCmd = &cobra.Command{
+// DockerCmd handles the primary command.
+var DockerCmd = &cobra.Command{
 	Use:   "docker",
 	Short: "Docker related commands",
-	Long: `Docker command contains all commands that are relevant to docker.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("docker called")
-	},
+	Long:  `Docker command contains all commands that are relevant to docker.`,
 }
 
 func init() {
-	RootCmd.AddCommand(dockerCmd)
-
+	DockerCmd.AddCommand(compose.ComposeCmd)
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
