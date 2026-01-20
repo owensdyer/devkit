@@ -1,4 +1,4 @@
-module cobra-cli
+module github.com/owensdyer/devkit
 
 go 1.25.4
 
