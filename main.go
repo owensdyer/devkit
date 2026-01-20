@@ -1,10 +1,7 @@
-/*
-Copyright © 2026 Owen Dyer dyer.owen@outlook.com
-
-*/
+// Package main is responsible for executing the program.
 package main
 
-import "github.com/owensdyer/devkit/cmd"
+import "devkit/cmd"
 
 func main() {
 	cmd.Execute()
